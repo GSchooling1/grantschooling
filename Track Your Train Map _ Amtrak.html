@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+
+
+<head>
+    
+</meta>
+    <script async type="text/javascript" src="//assets.adobedtm.com/launch-EN2afa083a8c0444a3864ddbb48b27a9a7.min.js"></script>
+	
+<!--BEGIN ADOBE DTM CUSTOM VARIABLES -->
+<script type="text/javascript">
+    
+    var jsonObjFromSessStorage = sessionStorage.getItem("ibsession");
+    var jsonString = jsonObjFromSessStorage ? JSON.parse(jsonObjFromSessStorage) : '';
+    var loggedIn = jsonString && jsonString.user ? jsonString.user.isLoggedIn : '';
+    var favDep = jsonString && jsonString.profile && jsonString.profile.data.consumer.myProfile.customerPreferences.homeStationPref ? jsonString.profile.data.consumer.myProfile.customerPreferences.homeStationPref.locationCode : '';
+    var favArr = jsonString && jsonString.profile && jsonString.profile.data.consumer.myProfile.customerPreferences.arrivalStationPref ? jsonString.profile.data.consumer.myProfile.customerPreferences.arrivalStationPref.locationCode : '';
+    var agrMember = false;
+    var agrNumber = jsonString && jsonString.profile ? jsonString.profile.data.consumer.myProfile.memberNumber : '';
+    var agrTier = '';
+    var agrPts = jsonString && jsonString.profile ? jsonString.profile.data.consumer.myProfile.myAGRAccountInfo.myAGRPoints : '';
+    
+</script>
+
+<script type="text/javascript">
+    var loginstate = "logged-out";
+    if(loggedIn){
+        loginstate = "logged-in";
+    }
+
+    var newDigitalData = {
+        "AccountManagement": {
+            "AGRTier":agrTier,
+            "loginStatus":loginstate,
+            "AGRNumber":agrNumber,
+            "AGRPoints":agrPts,
+            "favDeparture":favDep,
+            "favArrival":favArr
+        },
+        "PageInfo":{
+            "pageName": "Map-TrackaTrainMap",
+            "pageType": "",
+            "channel": "amtrak.com",
+            "siteSection": "",
+            "siteName": "amtrak",
+        }
+    }
+
+    var digitalData = digitalData || {};
+</script>
+
+<script type="text/javascript">
+    window.addEventListener("message", function(event){
+        if(event.data && event.data.source === "NextIT" && digitalData){
+            var data = event.data.data;
+            var newAskJulieAnalytics = {};
+            newAskJulieAnalytics.state = data.Event;
+            newAskJulieAnalytics.unitName = data.UnitLabel;
+            digitalData.askJulie = newAskJulieAnalytics;
+        };
+    }, false);
+</script>
+<!--END ADOBE DTM CUSTOM VARIABLES -->
+
+<!--BEGIN GOOGLE ANALYTICS -->
+<script type="text/javascript">
+
+    // BEGIN LEGACY GA
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', "UA\u002D23218774\u002D1"]);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    // END LEGACY GA
+
+    // BEGIN NEW GA
+    /*
+    (function(i,s,o,g,r,a,m){
+        i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-99330229-1', 'auto');
+    ga('send', 'pageview');
+    */
+    //END NEW GA
+
+
+    //PDF Tracking catch-all
+    document.addEventListener("DOMContentLoaded", function(e) {
+        var ls = document.getElementsByTagName("a");
+        for(i = 0; i < ls.length; ++i){
+            l = ls[i];
+            if(!c(l) && l.href.substr(l.href.length - 4).toLowerCase() == ".pdf"){
+                l.addEventListener("click", function(e){
+                    // LEGACY GA
+                    _gaq.push(['_trackEvent', 'Amtrak.com - PDF', 'Download PDF - Generic', e.target.href]);
+                    // NEW GA
+                    //ga('send', 'event', 'Amtrak.com - PDF', 'Download PDF - Generic', e.target.href);
+                });
+            }
+
+            if(c(l)){
+                (function () {
+                    var ct;
+                    var ev;
+                    var lb;
+                    if(l.hasAttribute("data-ga-category")){
+                        ct = l.dataset.gaCategory;
+                        var r = /\\u([\d\w]{4})/gi;
+                        ct = ct.replace(r, function (match, grp) {
+                            return String.fromCharCode(parseInt(grp, 16)); } );
+                        ct = unescape(ct);
+                    }
+                    else {
+                        ct = "Amtrak.com - Event";
+                    }
+
+                    if(l.hasAttribute("data-ga-event")) {
+                        ev = l.dataset.gaEvent;
+                        var r = /\\u([\d\w]{4})/gi;
+                        ev = ev.replace(r, function (match, grp) {
+                            return String.fromCharCode(parseInt(grp, 16)); } );
+                        ev = unescape(ev);
+                    }
+                    else {
+                        ev = "Link Click"; 
+                    }
+
+                    if(l.hasAttribute("data-ga-label")) {
+                        lb = l.dataset.gaLabel;
+                        var r = /\\u([\d\w]{4})/gi;
+                        lb = lb.replace(r, function (match, grp) {
+                            return String.fromCharCode(parseInt(grp, 16)); } );
+                        lb = unescape(lb);
+                    }
+                    else {
+                        lb = l.href;
+                    }
+                    l.addEventListener("click", function(e){
+                        // LEGACY GA
+                        _gaq.push(['_trackEvent', ct, ev, lb]);
+                        // NEW GA
+                        //ga('send', 'event', ct, ev, lb);
+                    });
+                }());
+            }
+        }
+    });
+
+    function c(l){
+        if (l.hasAttribute("data-ga") || 
+            l.hasAttribute("data-ga-category") || 
+            l.hasAttribute("data-ga-event") ||
+            l.hasAttribute("data-ga-label")){
+
+            return true;
+        }
+        return false;
+    }
+
+</script>
+<!--END GOOGLE ANALYTICS -->
+
+
+    <!--mp_linkcode_begins-->
+    <script type="text/javascript" src="/etc/designs/dotcom-assets/js/mp_linkcode.js"></script>
+    <!--mp_linkcode_ends-->
+    
+<!--– mp_snippet_begins -->
+<script>
+	MP.UrlLang='mp_js_current_lang';
+	MP.SrcUrl=decodeURIComponent('mp_js_orgin_url');
+	MP.oSite=decodeURIComponent('mp_js_origin_baseUrl');
+	MP.tSite=decodeURIComponent('mp_js_translated_baseUrl');
+	MP.init();
+	var mp_langLink = function() {
+		var langlinks = document.querySelectorAll('.langLink');
+		for (var i = 0; i < langlinks.length; i++) {
+			langlinks.item(i).onclick = function() {
+				MP.init();
+				var lang = this.getAttribute('data-lang');
+				var url = this.getAttribute('data-href');
+				var tSite = MP.tSite.replace(/(https?:\/\/|\/?$)/g,'');
+				url = url.replace(/(https?:\/\/|\/?$)/g,'');
+				MP.switchLanguage(tSite.search(url)!=-1?MP.oSite:url, lang, true);
+				return false;
+			}
+		}
+	};
+	if(window.addEventListener){
+		window.addEventListener('load',mp_langLink,false);
+	}else if(window.attachEvent){
+		window.attachEvent('onload',mp_langLink);
+	}
+	</script>
+	<!--– mp_snippet_ends -->
+
+    
+
+
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <!-- Include all the SEO metadata here -->
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/> 
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1"/>
+	<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/> 
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/> 
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/> 
+	<link rel="manifest" href="/site.webmanifest"/>
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#054f7a"/> 
+	<meta name="msapplication-TileColor" content="#ffffff"/>
+	<meta name="theme-color" content="#ffffff"/>
+	<meta name="theme-color" content="#ffffff"/>
+
+    <!-- Removed meta keywords -->
+    
+      <link rel="canonical" href="https://www.amtrak.com/track-your-train-map"/>
+        
+                <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW"/>
+          
+          
+     
+	
+		<title>Track Your Train Map | Amtrak</title>
+	
+     
+    
+      
+    
+
+    
+    <!--  Old IE styles  -->
+    <!--[if (lte IE 9) & (!IEMobile)]>
+       <sly data-sly-call="" />
+    <![endif]-->
+
+    <!--  RWD styles  -->
+    <!--[if (gt IE 9) | (IEMobile)]><!-->
+    
+    
+<link rel="stylesheet" href="/etc/designs/dotcom-assets/rwd__libs.25a6b2767f27dd60efc3f3987c72ff07.css" type="text/css">
+
+
+
+    <!--<![endif]-->
+    
+    
+<link rel="stylesheet" href="/etc/designs/tickets/angular/styles.13a2251f5de0fc390be538a7ae44ea5c.css" type="text/css">
+
+
+
+
+    <script id="nit-alme-main" type="text/javascript" async="true" language="javascript" src="https://askjulie2.nextit.com/alme/nextit-script-manager.js"></script>  
+
+    
+	
+	
+
+		<!-- ** The User1st Snippet ** --> 
+	
+
+	
+		
+    
+<link rel="stylesheet" href="/etc/designs/dotcom-assets/publish_lib.f32b446bd55a3f8b0134d68d748f424b.css" type="text/css">
+
+
+
+	
+
+<meta property="og:title" content="Amtrak Track Your Train Map"/>
+
+
+<meta property="og:description"/>
+ 
+<meta property="og:image" content="https://www.amtrak.com/content/dam/projects/dotcom/english/public/images/Carousel/Landing-feature_01.gif"/>
+<meta property="og:url" content="https://www.amtrak.com/track-your-train-map"/>
+<meta property="og:type" content="website"/>
+
+
+</head>
+
+
+<script type="text/javascript" src="https://alcdn.msauth.net/browser/2.6.1/js/msal-browser.js" integrity="sha384-kHVR+hnKKUXpL5UEI3dgmdIKZgopBagC1RdQytFqglEGROvOSAGJRkaFWfu8VsSx" crossorigin="anonymous"></script>
+
+<body data-require-authentication="false">
+	<div class="page-wrap ">
+	 <div class="accessibility-links">
+            <a href="#page-content" class="hide-from__screen focusable">Skip to content</a>
+            <a href="#search-trip-types" class="hide-from__screen focusable">Skip to Buy Tickets</a>
+        </div>
+		
+		<article class="notifications am-js__notifications fixedsticky">
+    <div class="message-container" data-hook="notifications-message-container"></div>
+</article>
+
+		
+    
+    
+    
+<script type="text/javascript" src="/etc.clientlibs/clientlibs/granite/jquery/granite/csrf.a9dcac4698709ca8e1cbc88363cf0793.js"></script>
+<script type="text/javascript" src="/etc/designs/dotcom-assets/js__libs.ab3bb83f7786c4d950327d628e4d6706.js"></script>
+
+
+
+
+    
+    
+        
+    
+<script type="text/javascript" src="/etc/designs/tickets/angular/runtime.902d87b49b3959b26be3454f9025da80.js"></script>
+
+
+
+        
+    
+<script type="text/javascript" src="/etc/designs/tickets/angular/polyfills.274b789aaa9cdf631b045045e9513a1a.js"></script>
+
+
+
+        
+    
+<script type="text/javascript" src="/etc/designs/tickets/angular/scripts.b6d0acb94befba466a4bfe8cda9ebbec.js"></script>
+
+
+
+        
+    
+<script type="text/javascript" src="/etc/designs/tickets/angular/vendor.31356eec7d9421da61bc88a48eb4cb54.js"></script>
+
+
+
+        
+    
+<script type="text/javascript" src="/etc/designs/tickets/angular/main.68bdee81b992c2f2fb09984ac30bf588.js"></script>
+
+
+
+    
+    
+        
+            <script src='https://amtrak.inq.com/chatskins/launch/inqChatLaunch10006734.js'></script>
+        
+    
+
+<script>
+    jQuery.noConflict();
+</script>
+<script type="text/javascript">
+    digitalData = jQuery.extend({}, digitalData, newDigitalData);
+</script>
+        <main role="main" class="page-content content-page tooltip-modal-content" id="page-content">
+
+
+
+
+    
+    
+    <div class="embed-script basecomponent parbase">
+
+
+<div class="scrollDiv" style="padding: px">
+	<h1 style="display:none;">Amtrak Track a Train Status and Location Map</h1>
+<p style="display:none;">Use the Track a Train map to follow your train on a map in near real-time and check when it will arrive at the next station (and all down line stations).</p>
+<style>
+iframe{
+height: 100vh;}
+.page-content {
+    margin-top: 0px;
+    padding-top: 0px;
+}
+</style>
+</div>
+
+
+
+</div>
+
+
+    
+    
+    <div class="iframe basecomponent parbase"><article class="iframe-component am-js__iframe-component" style="padding:  ">
+
+	
+	
+	
+	
+	<iframe height="980px" src="/services/maps.trainlocation.html" sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+	</iframe>
+
+</article>
+
+</div>
+
+
+
+</main>
+		
+	</div>
+	
+<script type="text/javascript"  src="/Y4wfcV/NdX/fQT/grCWTJJG/QiVYDDtX9QJ9/FQwyFXhyBA/ZhEi/ZEdoP3wB"></script></body>
+
+</html>
