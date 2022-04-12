@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Blair's To-Do List</title>
+    <title id="head_title">To-Do List</title>
     <meta name="robots" content="noindex" />
     <base target="_top">
     <!-- Compiled and minified CSS -->
@@ -15,7 +15,7 @@
   <!--Navbar-->
   <nav class="navbar">
     <div class="nav-wrapper">
-      <a href="#" class="brand-logo center">Blair's To-Do List</a>
+      <a class="brand-logo center" id="nav_title">To-Do List</a>
     </div>
   </nav>
 
@@ -69,7 +69,7 @@
         var callID = randomStr()
         getElement("lastCall").innerHTML=callID
         var pwd = getElement("pwd").value
-        var url = "https://script.google.com/macros/s/AKfycbygfaknHkxTiBHtO4IGbpjUJeiPhAUrv33s83nS1P3at7vur6v8OITt8o_GzFg2RNOQ/exec"
+        var url = "https://script.google.com/macros/s/AKfycbwWAs4L6B7hTet2Yom-6bCrq9NH4JfC5tIErPX6kZXS8TZu87hopwfVswbgRGoKRNYs/exec"
         url+="?callID="+callID+"&pwd="+pwd
         if (entries) {
           url+="&update="+JSON.stringify(entries)
@@ -90,6 +90,8 @@
           getElement("password").setAttribute("hidden","true")
           getElement("canvas").removeAttribute("hidden")
           getElement("add-button").removeAttribute("hidden")
+          getElement("nav_title").innerHTML = response.name+"'s To-Do List"
+          getElement("head_title").innerHTML = response.name+"'s To-Do List"
           writeEntries(JSON.parse(response.entries))
         }
       }
@@ -157,7 +159,7 @@
 
       // Configuration, Play with these
       var config = {
-        particleNumber: 1000,
+        particleNumber: 10000,
         maxParticleSize: 10,
         maxSpeed: 40,
         colorVariation: 50
