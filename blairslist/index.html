@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   </head>
   <!--Navbar-->
-  <nav class="navbar">
+  <nav class="navbar" style="background-color:#f992ad">
     <div class="nav-wrapper">
       <a class="brand-logo center" id="nav_title">To-Do List</a>
     </div>
@@ -27,14 +27,14 @@
       <div id="password">
         <label for="pwd">Password:</label>
         <input type="password" id="pwd">
-        <a class="waves-effect waves-light btn" onclick="callServer()">Login</a>
+        <a class="waves-effect waves-light btn" onclick="callServer()" style="background-color:#438029">Login</a>
       </div>
 
       <table><tbody id="entries"></tbody></table>
       <br>
       <div class="s12" id="add-button" hidden>
         <div class="right-align">
-          <a class="waves-effect waves-light btn" onclick="createEntry()"><i class="material-icons">add</i></a>
+          <a class="waves-effect waves-light btn" onclick="createEntry()" style="background-color:#438029"><i class="material-icons">add</i></a>
         </div>
       </div>
     </div>
