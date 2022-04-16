@@ -113,6 +113,7 @@
           //checkbox.type="checkbox"
           //checkbox.checked = false
           checkbox.className = "waves-effect waves-light btn"
+          checkbox.style.backgroundColor = getCheckboxBgColor(i)
           checkbox.setAttribute("onclick","removeEntry("+i+")")
           checkbox.innerHTML='<i class="material-icons">check</i>'
           check.appendChild(checkbox)
@@ -139,6 +140,14 @@
         return entries
       }
 
+      function getCheckboxBgColor(i) {
+        var colors = ["#B29700","#D4AF37","#E1C158","#7DAA6A","#619A46","#438029","#619A46","#7DAA6A","#E1C158","#D4AF37"]
+        while (i >= colors.length) {
+          i -= colors.length
+        }
+        return colors[i]
+      }
+
       function updateServer() {callServer(getEntries())}
       function getElement(id) {return document.getElementById(id)}
       function inner(id) {return getElement(id).innerHTML}
@@ -160,7 +169,7 @@
 
       // Configuration, Play with these
       var config = {
-        particleNumber: 10000,
+        particleNumber: 1000,
         maxParticleSize: 10,
         maxSpeed: 40,
         colorVariation: 50
