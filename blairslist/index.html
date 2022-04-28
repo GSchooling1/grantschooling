@@ -51,12 +51,18 @@
       function removeEntry(index) {
         var location = getElement(String(index)).getBoundingClientRect()
         sprayParticles(location.top + 35, location.left + 35)
-        getElement(String(index)).remove()
-        updateServer()
+        //getElement(String(index)).remove()
+        getElement(String(index)+"_checkbox").className += " disabled"
+        //updateServer()
         //var id = selectRandom(["fireworks"])
         //getElement(id).removeAttribute("hidden")
-        //setTimeout(hide, 10000, id)
+        setTimeout(removeEntry2, 2000, index)
         //getElement("gravityGame").removeAttribute("hidden")
+      }
+
+      function removeEntry2(index) {
+        getElement(String(index)).remove()
+        updateServer()
       }
 
       function createEntry() {
@@ -113,6 +119,7 @@
           //checkbox.type="checkbox"
           //checkbox.checked = false
           checkbox.className = "waves-effect waves-light btn"
+          checkbox.id = i+"_checkbox"
           checkbox.style.backgroundColor = "#438029"
           checkbox.setAttribute("onclick","removeEntry("+i+")")
           checkbox.innerHTML='<i class="material-icons">check</i>'
