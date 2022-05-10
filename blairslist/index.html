@@ -104,6 +104,21 @@
         }
       }
 
+      function start() {
+        var now = new Date().getTime()
+        var lastPwd = 0
+        while (new Date().getTime() < now + 1000) {
+          var pwd = getElement("pwd").value
+          if (pwd.length > lastPwd + 1) {
+            getElement("password").setAttribute("hidden","true")
+            callServer()
+            alert("Expedited password")
+            break;
+          }
+        }
+        alert("Didn't expedite server")
+      }
+
       function writeEntries(entries) {
         if (JSON.stringify(entries) == JSON.stringify(getEntries())) {return}
         var table = getElement("entries")
