@@ -105,17 +105,20 @@
       }
 
       function start() {
+        setTimeout(checkPwdExpedite, 50, new Date().getTime())
+      }
+
+      function checkPwdExpedite(start) {
         var now = new Date().getTime()
-        var lastPwd = 0
-        while (new Date().getTime() < now + 2000) {
-          var pwd = getElement("pwd").value
-          //alert(pwd.length)
-          if (pwd.length > lastPwd + 1) {
-            getElement("password").setAttribute("hidden","true")
-            callServer()
-            //alert("Expedited password")
-            break;
-          }
+        var pwd = getElement("pwd").value
+        var expedited = false
+        if (pwd.length > 2) {
+          getElement("password").setAttribute("hidden","true")
+          callServer()
+          expedited = true
+        }
+        if (now < start + 2000 && !expedited) {
+          setTimeout(checkPwdExpedite, 50, start)
         }
         //alert("Didn't expedite server")
       }
