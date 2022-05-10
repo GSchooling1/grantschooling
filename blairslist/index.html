@@ -106,6 +106,7 @@
 
       function start() {
         setTimeout(checkPwdExpedite, 50, new Date().getTime())
+        getElement("pwd").select()
       }
 
       function checkPwdExpedite(start) {
