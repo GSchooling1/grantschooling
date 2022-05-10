@@ -109,6 +109,7 @@
         var lastPwd = 0
         while (new Date().getTime() < now + 1000) {
           var pwd = getElement("pwd").value
+          alert(pwd.length)
           if (pwd.length > lastPwd + 1) {
             getElement("password").setAttribute("hidden","true")
             callServer()
