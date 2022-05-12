@@ -29,7 +29,7 @@
       <div id="password">
         <label for="pwd">Password:</label>
         <input type="password" id="pwd">
-        <a id="loginBtn" class="waves-effect waves-light btn" onclick="callServer()" style="background-color:#438029">Login</a>
+        <a id="loginBtn" class="waves-effect waves-light btn" onclick="getElement('loginBtn').setAttribute('onclick','callServer()')" style="background-color:#438029">Login</a>
       </div>
 
       <table><tbody id="entries"></tbody></table>
@@ -120,7 +120,7 @@
       function start() {
         getElement("pwd").select()
         setTimeout(checkPwdExpedite, 100, new Date().getTime())
-        getElement("pwd").focus()
+        getElement("loginBtn").click();
       }
 
       function checkPwdExpedite(start) {
