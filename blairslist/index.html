@@ -23,12 +23,13 @@
 
 
   <body onload="start()">
+    <img id="noEntryImage" src="/blairslist/noEntryImage.png" style="position: fixed;bottom: 45vh;right: 46%;width:8%" hidden>
     <canvas id="canvas" hidden></canvas>
     <div class="container">
       <div id="password">
         <label for="pwd">Password:</label>
         <input type="password" id="pwd">
-        <a class="waves-effect waves-light btn" onclick="callServer()" style="background-color:#438029">Login</a>
+        <a id="loginBtn" class="waves-effect waves-light btn" onclick="callServer()" style="background-color:#438029">Login</a>
       </div>
 
       <table><tbody id="entries"></tbody></table>
@@ -64,6 +65,7 @@
       function removeEntry2(index) {
         getElement(String(index)).remove()
         updateServer()
+        updateNoEntryImage()
       }
 
       function createEntry() {
@@ -71,6 +73,7 @@
         entries.push("")
         writeEntries(entries)
         updateServer()
+        updateNoEntryImage()
       }
 
       function callServer(entries) {
@@ -101,11 +104,22 @@
           getElement("nav_title").innerHTML = response.name+"'s To-Do List"
           getElement("head_title").innerHTML = response.name+"'s To-Do List"
           writeEntries(JSON.parse(response.entries))
+          updateNoEntryImage()
+        }
+      }
+
+      function updateNoEntryImage() {
+        var entries = getEntries()
+        if (entries.length) {
+          getElement("noEntryImage").setAttribute("hidden","true")
+        } else {
+          getElement("noEntryImage").removeAttribute("hidden")
         }
       }
 
       function start() {
-        setTimeout(checkPwdExpedite, 50, new Date().getTime())
+        getElement("pwd").select()
+        setTimeout(checkPwdExpedite, 100, new Date().getTime())
         getElement("pwd").select()
       }
 
