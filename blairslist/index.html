@@ -17,13 +17,16 @@
       .category-badge {
         position: relative;
         left: 0px;
-        top: 14px;
+        bottom: 10px;
       }
       .checkbox-button {
         position: relative;
         right: 0px;
-        top: 8px;
+        bottom: 10px;
         background-color: #438029;
+      }
+      .entry_row {
+        height: 75px;
       }
     </style>
   </head>
@@ -222,7 +225,7 @@
         for (var i = 0; i < data.entries.length; i++) {
           var tr = document.createElement("tr")
           tr.id = i
-          tr.className="row"
+          tr.className="row entry_row valign-wrapper"
           table.appendChild(tr)
 
           var check = document.createElement("td")
