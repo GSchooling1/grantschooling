@@ -400,9 +400,23 @@
           }
           if (catActive) {
             entry.removeAttribute("hidden")
+            addClass(entry, "valign-wrapper")
           } else {
-            entry.setAttribute("hidden","false")
+            entry.setAttribute("hidden","true")
+            removeClass(entry, "valign-wrapper")
           }
+        }
+      }
+
+      function removeClass(elem, name) {
+        while (elem.className.indexOf(name) > -1) {
+          elem.className = elem.className.replace(name,"")
+        }
+      }
+
+      function addClass(elem, name) {
+        if (elem.className.indexOf(name) < 0) {
+          elem.className = elem.className + " " + name
         }
       }
 
