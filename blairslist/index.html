@@ -376,7 +376,7 @@
 
       function updateVisibility(name, active) {
         var cats = getElement("categories")
-        var activeCats = []
+        var activeCats = ["other"]
         for (var i = 0; i < cats.children.length; i++) {
           var cat = cats.children[i].children[0]
           if (cat.children[0].innerHTML == name) {
