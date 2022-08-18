@@ -14,6 +14,9 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
+      .fixed {
+        position: fixed;
+      }
       .category-badge {
         position: relative;
         left: 0px;
@@ -30,6 +33,26 @@
       }
       .entry_row {
         height: 68px;
+      }
+      .move-down:hover {
+        cursor: s-resize;
+        //background-color: #294D19;
+      }
+      .move-up:hover {
+        cursor: n-resize;
+        //background-color: #294D19;
+      }
+      .move-entry {
+        width: 50px;
+        height: 10px;
+        background-color: #ffffff;
+        position: relative;
+      }
+      .move-down {
+        top: -9px;
+      }
+      .move-up {
+        top: -11px;
       }
     </style>
   </head>
@@ -132,6 +155,7 @@
       }
 
       function callServer(data) {
+        addClass(getElement("loginBtn"),"disabled")
         var callID = randomStr()
         getElement("lastCall").innerHTML=callID
         var pwd = getElement("pwd").value
@@ -235,6 +259,11 @@
           check.className = "col s1"
           tr.appendChild(check)
 
+          var moveUp = document.createElement("div")
+          moveUp.className = "move-entry move-up"
+          moveUp.setAttribute("onclick","moveEntry("+i+",true)")
+          check.appendChild(moveUp)
+
           var checkbox = document.createElement("a")
           //checkbox.type="checkbox"
           //checkbox.checked = false
@@ -243,6 +272,11 @@
           checkbox.setAttribute("onclick","removeEntry("+i+")")
           checkbox.innerHTML='<i class="material-icons">check</i>'
           check.appendChild(checkbox)
+
+          var moveDown = document.createElement("div")
+          moveDown.className = "move-entry move-down"
+          moveDown.setAttribute("onclick","moveEntry("+i+",false)")
+          check.appendChild(moveDown)
 
           var text = document.createElement("td")
           text.className = "col s10"
@@ -337,6 +371,30 @@
           td3.appendChild(button)
         }
         return tr
+      }
+
+      function moveEntry(i, up) {
+        var entries = getData().entries
+        var moving = null
+        if (up && i > 0) {
+          moving = "up"
+        } else if (!up && i < entries.length - 1) {
+          moving = "down"
+        }
+        if (moving) {
+          var movingEntry = entries[i]
+          if (moving == "up") {
+            entries[i] = entries[i-1]
+            entries[i-1] = movingEntry
+          } if (moving == "down") {
+            entries[i] = entries[i+1]
+            entries[i+1] = movingEntry
+          }
+          var data = getData()
+          data.entries = entries
+          writeEntries(data)
+          updateServer()
+        }
       }
 
       function moveCat(i, j) {
