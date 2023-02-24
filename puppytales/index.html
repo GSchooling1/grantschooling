@@ -143,7 +143,7 @@
       for (var i = 0; i < tales.length; i++) {
         if (arraysEquivalent(day, tales[i]["d"])) {
           text = tales[i]["t"]
-          color = tales[i]["c"]
+          tales[i]["c"] = reverseColor(tales[i]["c"])
           index = i
           break;
         }
@@ -154,7 +154,7 @@
       if (input != null) {
         if (index != null) {
           tales[index]["t"] = input
-          tales[index]["c"] = color
+          //tales[index]["c"] = color
         } else {
           tales.push({"d":day, "c":0, "t":text})
         }
@@ -192,13 +192,15 @@
     }
 
     function reverseColor(color) {
-      alert(color)
+      //alert(color)
       if (color <= 1) {
-        alert(colors.length - 1)
+        //alert(colors.length - 1)
+        return colors.length - 2
+      } else if (color == 2) {
         return colors.length - 1
       }
-      alert(color - 1)
-      return color - 1
+      //alert(color - 1)
+      return color - 2
     }
 
     function daysBetween(day1, day2) {
