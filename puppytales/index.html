@@ -34,7 +34,7 @@
     var colors = null
 
     function getData() {
-      var url = "https://script.google.com/macros/s/AKfycbwNS1f8z4b0YjOcqKsZkJgW0U0O8GOg84h_aS8d71dPR-sgiZUm5h86CK4yZB51KjpY6w/exec"
+      var url = "https://script.google.com/macros/s/AKfycbw9nUP_oyDXT5w3kSOtPuEZ5VRqOopJMNlQDV82mhtyXxfH3vhCWq5_af5KyHIFBzRUoA/exec"
       url+="?id="+getDeviceId()+"&get=true"
       try {
         fetch(urlify(url))
@@ -77,7 +77,7 @@
         "tales":tales,
         "colors":colors,
       }
-      var url = "https://script.google.com/macros/s/AKfycbwNS1f8z4b0YjOcqKsZkJgW0U0O8GOg84h_aS8d71dPR-sgiZUm5h86CK4yZB51KjpY6w/exec"
+      var url = "https://script.google.com/macros/s/AKfycbw9nUP_oyDXT5w3kSOtPuEZ5VRqOopJMNlQDV82mhtyXxfH3vhCWq5_af5KyHIFBzRUoA/exec"
       url+="?update="+JSON.stringify(data)
       fetch(urlify(url))
     }
