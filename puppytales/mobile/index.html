@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html style="background-color:#cbc0d3" id="html">
+  <head>
+    <title>Puppy Tales</title>
+    <base target="_top">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+      th, td {
+        border: 1px solid grey;
+      }
+      table {
+        border-spacing: 20px;
+        border-collapse: separate;
+        margin: 0 auto;
+      }
+      h1, .material-icons {
+        font-size: 90px;
+      }
+      .colorOption {
+        width: 100%;
+        border-radius: 60px;
+        //height: 200px;
+      }
+      .valign {
+        margin-top: 55px;
+        margin-bottom: 55px;
+        color: white;
+      }
+      .inputDiv {
+        //margin-left: 5px;
+        //margin-right: 5px;
+        background-color: white;
+        font-size: 85px;
+        border-radius: 60px;
+        margin: 10px;
+      }
+      .inputContainer {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        margin-right: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row">
+      <div class="col s1" onclick="moveEarlier()">
+         <h1><i class="material-icons">chevron_left</i></h1>
+      </div>
+      <div class="col s10 center-align">
+        <h1 id="dateTitle">Saturday, Feb 24</h1>
+      </div>
+      <div class="col s1" onclick="moveLater()">
+        <h1><i class="material-icons">chevron_right</i></h1>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col s4">
+        <div class="colorOption" id="colorTile1" onclick="inputColor(1)">
+          <div class="center-align"><i class="material-icons valign" id="colorCheck1">radio_button_checked</i></div>
+        </div>
+      </div>
+      <div class="col s4">
+        <div class="colorOption" id="colorTile2" onclick="inputColor(2)">
+          <div class="center-align"><i class="material-icons valign" id="colorCheck2">radio_button_unchecked</i></div>
+        </div>
+      </div>
+      <div class="col s4">
+        <div class="colorOption" id="colorTile3" onclick="inputColor(3)">
+          <div class="center-align"><i class="material-icons valign" id="colorCheck3">radio_button_unchecked</i></div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div>
+      <div class="inputDiv" onclick="inputPrompt()">
+        <div class="inputContainer"><p id="inputText">This is the text...</p></div>
+      </div>
+    </div>
+    <div id="id" hidden></div>
+  </body>
+  <script>
+    const startDate = [2,22,2023]
+    const rows = 14
+    const cols = 25
+    const border = 0
+    const borderSpacing = 20
+    const borderColor = "#000000"
+    const borderSize = 5
+    const weekdays = [
+      "Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"
+    ]
+    const months = [
+      "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
+    ]
+    var tales = null
+    var colors = null
+    var currentDay = dateToDay(new Date())
+
+    function getData() {
+      var url = "https://script.google.com/macros/s/AKfycbw9nUP_oyDXT5w3kSOtPuEZ5VRqOopJMNlQDV82mhtyXxfH3vhCWq5_af5KyHIFBzRUoA/exec"
+      url+="?id="+getDeviceId()+"&get=true"
+      try {
+        fetch(urlify(url))
+        .then(response => response.json())
+        .then(response => handleResponse(
+          JSON.parse(unurlify(JSON.stringify(response)))
+        ))
+      } catch(err) {
+        alert(err)
+      }
+    }
+
+    function urlify(str) {
+        while (str.indexOf("#") > -1) {
+          str = str.replace("#","..")
+        }
+        return str
+      }
+
+      function unurlify(str) {
+        while (str.indexOf("..") > -1) {
+          str = str.replace("..","#")
+        }
+        return str
+      }
+
+    function handleResponse(response) {
+      alert(response)
+        if (response["error"]) {
+          alert("Error: "+response["error"])
+          return
+        }
+        tales = response.tales
+        colors = response.colors
+        
+        drawElements()
+    }
+
+    function updateServer() {
+      var data = {
+        "tales":tales,
+        "colors":colors,
+      }
+      var url = "https://script.google.com/macros/s/AKfycbw9nUP_oyDXT5w3kSOtPuEZ5VRqOopJMNlQDV82mhtyXxfH3vhCWq5_af5KyHIFBzRUoA/exec"
+      url+="?update="+JSON.stringify(data)
+      fetch(urlify(url))
+    }
+
+    function drawElements() {
+      var date = dayToDate(currentDay)
+      var weekday = weekdays[date.getDay()]
+      var month = months[date.getMonth()]
+      elem("dateTitle").innerHTML = weekday+", "+month+" "+date.getDate()
+
+      var dayColor = 0
+      var dayText = "Tap to input..."
+      for (var i = 0; i < tales.length; i++) {
+        if (arraysEquivalent(tales[i]["d"], currentDay)) {
+          dayColor = tales[i]["c"]
+          if (tales[i]["t"]) {dayText = tales[i]["t"]}
+        }
+      }
+
+      elem("html").style.backgroundColor = colors[dayColor]
+
+      elem("inputText").innerHTML = dayText
+
+      for (var i = 1; i < colors.length; i++) {
+        elem("colorTile"+i).style.backgroundColor = colors[i]
+        if (i == dayColor) {
+          elem("colorCheck"+i).innerHTML = "radio_button_checked"
+          elem("colorTile"+i).style.border = borderSize+"px solid "+borderColor
+        } else {
+          elem("colorCheck"+i).innerHTML = "radio_button_unchecked"
+          elem("colorTile"+i).style.border = "0px solid "+borderColor
+        }
+      }
+    }
+
+    function inputPrompt() {
+      var day = currentDay
+      var text = ""
+      var index = null
+      for (var i = 0; i < tales.length; i++) {
+        if (arraysEquivalent(day, tales[i]["d"])) {
+          text = tales[i]["t"]
+          index = i
+          break;
+        }
+      }
+
+      let input = prompt("Enter a description:", text);
+
+      if (input != null) {
+        if (index != null) {
+          tales[index]["t"] = input
+        } else {
+          tales.push({"d":day, "c":0, "t":text})
+        }
+        drawElements()
+        updateServer()
+      }
+    }
+
+    function inputColor(color) {
+      var index = null
+      var day = currentDay
+      for (var i = 0; i < tales.length; i++) {
+        if (arraysEquivalent(day, tales[i]["d"])) {
+          index = i
+          break;
+        }
+      }
+      
+      if (index != null) {
+        tales[index]["c"] = color
+      } else {
+        tales.push({"d":day, "c":color, "t":null})
+      }
+
+      drawElements()
+      updateServer()
+    }
+
+    function moveEarlier() {
+      var date = dayToDate(currentDay)
+      var next = new Date(date.getTime() - 24*60*60*1000)
+      currentDay = dateToDay(next)
+      drawElements()
+    }
+
+    function moveLater() {
+      var date = dayToDate(currentDay)
+      var next = new Date(date.getTime() + 24*60*60*1000)
+      if (next.getTime() <= new Date().getTime()) {
+        currentDay = dateToDay(next)
+        drawElements()
+      }
+    }
+
+    function elem(id) {
+      return document.getElementById(id)
+    }
+
+    function cellDblClicked(day) {
+      var text = null
+      var index = null
+      for (var i = 0; i < tales.length; i++) {
+        if (arraysEquivalent(day, tales[i]["d"])) {
+          text = tales[i]["t"]
+          tales[i]["c"] = reverseColor(tales[i]["c"])
+          index = i
+          break;
+        }
+      }
+
+      let input = prompt("Enter a description:", text);
+
+      if (input != null) {
+        if (index != null) {
+          tales[index]["t"] = input
+          //tales[index]["c"] = color
+        } else {
+          tales.push({"d":day, "c":0, "t":text})
+        }
+        drawTable()
+        updateServer()
+      }
+    }
+
+    function cellClicked(day) {
+      var color = 0
+      var index = null
+      for (var i = 0; i < tales.length; i++) {
+        if (arraysEquivalent(day, tales[i]["d"])) {
+          color = tales[i]["c"]
+          index = i
+          break;
+        }
+      }
+      
+      if (index != null) {
+        tales[index]["c"] = advanceColor(color)
+      } else {
+        tales.push({"d":day, "c":1, "t":null})
+      }
+
+      drawTable()
+      updateServer()
+    }
+
+    function advanceColor(color) {
+      if (color >= colors.length - 1) {
+        return 1
+      }
+      return color + 1
+    }
+
+    function reverseColor(color) {
+      //alert(color)
+      if (color <= 1) {
+        //alert(colors.length - 1)
+        return colors.length - 2
+      } else if (color == 2) {
+        return colors.length - 1
+      }
+      //alert(color - 1)
+      return color - 2
+    }
+
+    function daysBetween(day1, day2) {
+      var date1 = dayToDate(day1)
+      var date2 = dayToDate(day2)
+      return Math.round( (date1.getTime() - date2.getTime()) / (24*60*60*1000) )
+    }
+
+    function dateToDay(date) {
+      return [date.getMonth() + 1, date.getDate(), date.getFullYear()]
+    }
+
+    function dayToDate(day) {
+      return new Date(day[2],day[0]-1,day[1])
+    }
+
+    function initializeTooltips() {
+      var elems = document.querySelectorAll('.tooltipped');
+      var instances = M.Tooltip.init(elems, {});
+    }
+
+    function removeTooltips() {
+      var elems = document.querySelectorAll('.tooltipped');
+      for (var i = 0; i < elems.length; i++) {
+        M.Tooltip.getInstance(elems[i]).close();
+      }
+    }
+
+    function arraysEquivalent(arr1, arr2) {
+      for (var i = 0; i < arr1.length; i++) {
+        if (arr2[i] != arr1[i]) {
+          return false
+        }
+      }
+      return arr1.length == arr2.length
+    }
+
+    function getDeviceId() {
+      var navigator_info = window.navigator;
+      var screen_info = window.screen;
+      var uid = navigator_info.mimeTypes.length;
+      uid += navigator_info.userAgent.replace(/\D+/g, '');
+      uid += navigator_info.plugins.length;
+      uid += screen_info.height || '';
+      uid += screen_info.width || '';
+      uid += screen_info.pixelDepth || '';
+      return uid
+    }
+
+    getData()
+    //updateServer()
+    elem("id").innerHTML=getDeviceId()
+  </script>
+</html>
