@@ -84,7 +84,7 @@
           </div>
           <div class="uk-width-1-1 uk-hidden" id="text1" uk-grid>
             <div class="uk-width-expand"></div>
-            <div class="uk-width-auto uk-padding-remove-left"><p id="poss1">238 possibilities left</p></div>
+            <div class="uk-width-auto uk-padding-remove-left"><ul uk-accordion><li><a class="uk-accordion-title uk-padding-remove-bottom" id="possNum1">238 possibilities left</a><div class="uk-accordion-content"><p id="poss1">One,two,three,four</p></div></li></ul></div>
             <div class="uk-width-expand"></div>
           </div>
           <div class="uk-width-1-1" uk-grid>
@@ -102,7 +102,7 @@
           </div>
           <div class="uk-width-1-1 uk-hidden" id="text2" uk-grid>
             <div class="uk-width-expand"></div>
-            <div class="uk-width-auto uk-padding-remove-left"><p id="poss2">238 possibilities left</p></div>
+            <div class="uk-width-auto uk-padding-remove-left"><ul uk-accordion><li><a class="uk-accordion-title uk-padding-remove-bottom" id="possNum2">238 possibilities left</a><div class="uk-accordion-content"><p id="poss2">One,two,three,four</p></div></li></ul></div>
             <div class="uk-width-expand"></div>
           </div>
           <div class="uk-width-1-1" uk-grid>
@@ -120,7 +120,7 @@
           </div>
           <div class="uk-width-1-1 uk-hidden" id="text3"  uk-grid >
             <div class="uk-width-expand"></div>
-            <div class="uk-width-auto uk-padding-remove-left"><p id="poss3">238 possibilities left</p></div>
+            <div class="uk-width-auto uk-padding-remove-left"><ul uk-accordion><li><a class="uk-accordion-title uk-padding-remove-bottom" id="possNum3">238 possibilities left</a><div class="uk-accordion-content"><p id="poss3">One,two,three,four</p></div></li></ul></div>
             <div class="uk-width-expand"></div>
           </div>
           <div class="uk-width-1-1" uk-grid>
@@ -138,7 +138,7 @@
           </div>
           <div class="uk-width-1-1 uk-hidden" id="text4"  uk-grid>
             <div class="uk-width-expand"></div>
-            <div class="uk-width-auto uk-padding-remove-left"><p id="poss4">238 possibilities left</p></div>
+            <div class="uk-width-auto uk-padding-remove-left"><ul uk-accordion><li><a class="uk-accordion-title uk-padding-remove-bottom" id="possNum4">238 possibilities left</a><div class="uk-accordion-content"><p id="poss4">One,two,three,four</p></div></li></ul></div>
             <div class="uk-width-expand"></div>
           </div>
           <div class="uk-width-1-1" uk-grid>
@@ -156,7 +156,7 @@
           </div>
           <div class="uk-width-1-1 uk-hidden" id="text5"  uk-grid>
             <div class="uk-width-expand"></div>
-            <div class="uk-width-auto uk-padding-remove-left"><p id="poss5">238 possibilities left</p></div>
+            <div class="uk-width-auto uk-padding-remove-left"><ul uk-accordion><li><a class="uk-accordion-title uk-padding-remove-bottom" id="possNum5">238 possibilities left</a><div class="uk-accordion-content"><p id="poss5">One,two,three,four</p></div></li></ul></div>
             <div class="uk-width-expand"></div>
           </div>
           <div class="uk-width-1-1" uk-grid>
@@ -174,7 +174,7 @@
           </div>
           <div class="uk-width-1-1 uk-hidden" id="text6"  uk-grid>
             <div class="uk-width-expand"></div>
-            <div class="uk-width-auto uk-padding-remove-left"><p id="poss6">238 possibilities left</p></div>
+            <div class="uk-width-auto uk-padding-remove-left"><ul uk-accordion><li><a class="uk-accordion-title uk-padding-remove-bottom" id="possNum6">238 possibilities left</a><div class="uk-accordion-content"><p id="poss6">One,two,three,four</p></div></li></ul></div>
             <div class="uk-width-expand"></div>
           </div>
         </div>
@@ -187,7 +187,6 @@
         var word = ""
 
         function run() {
-          //return
           //get word
           word = getParameterValue("word").toUpperCase()
           //get start word
@@ -245,7 +244,9 @@
           if (guesses[guesses.length-1] != word) {guesses.push(word)}
           for (i = 0; i < guesses.length; i++) {
             removeClass("text"+(i+1), "uk-hidden")
-            elem("poss"+(i+1)).innerHTML = possibilitiesForGuesses(guesses.slice(0,i+1), word, ALLWORDS).length + " possibilities left"
+            var possibilities = possibilitiesForGuesses(guesses.slice(0,i+1), word, ALLWORDS)
+            elem("possNum"+(i+1)).innerHTML = possibilities.length + " possibilities left"
+            elem("poss"+(i+1)).innerHTML = possibilities.join(", ")
           }
 
 
