@@ -189,26 +189,41 @@
         function run() {
           //return
           //get word
-          word = "CIRCUS"//getParameterValue("word").toUpperCase()
+          word = getParameterValue("word").toUpperCase()
           //get start word
-          var startWord = "HEART"//getParameterValue("start").toUpperCase()
+          var startWord = getParameterValue("start").toUpperCase()
           elem("wordSummary").innerHTML = "Start: "+startWord+" Target: "+word
           document.title = startWord +" -> "+word
+          //elem("progressBarValue").value=30.123456
+          //setGrid()
+          //return
+
           setTimeout(run2,500,startWord,word)
         }
 
         function run2(startWord, word) {
           //calculate guesses
           guesses = chooseOptimalGuesses(startWord, word, ALLWORDS, GUESSLIST)
-          window.alert(JSON.stringify(guesses))
-          if (guesses[guesses.length-1] != word) {guesses.push(word)}
-          for (i = 0; i < guesses.length; i++) {
-            removeClass("text"+(i+1), "uk-hidden")
-            elem("poss"+(i+1)).innerHTML = possibilitiesForGuesses(guesses.slice(0,i+1), word, ALLWORDS).length + " possibilities left"
-          }
-          setGrid()
-          removeClass("grid","uk-hidden")
-          appendClass("progressBar","uk-hidden")
+          /*
+          runGuessesChooser(startWord, word, ALLWORDS, GUESSLIST).then(
+            (data) => {
+              console.log(data)
+              guesses = data
+              window.alert(JSON.stringify(guesses))
+              if (guesses[guesses.length-1] != word) {guesses.push(word)}
+              for (i = 0; i < guesses.length; i++) {
+                removeClass("text"+(i+1), "uk-hidden")
+                elem("poss"+(i+1)).innerHTML = possibilitiesForGuesses(guesses.slice(0,i+1), word, ALLWORDS).length + " possibilities left"
+              }
+              setGrid()
+            }
+          )*/
+        }
+
+        function runGuessesChooser(startWord, word, allWords, guessList) {
+            return new Promise((resolve, reject, startWord, word, allWords, guessList) => {
+                resolve(chooseOptimalGuesses(startWord, word, allWords, guessList))
+            });
         }
 
         function getParameterValue(paramName) {
@@ -224,14 +239,27 @@
         }
 
         function setGrid() {
+          console.log(guesses)
+          removeClass("grid","uk-hidden")
+          appendClass("progressBar","uk-hidden")
+          if (guesses[guesses.length-1] != word) {guesses.push(word)}
+          for (i = 0; i < guesses.length; i++) {
+            removeClass("text"+(i+1), "uk-hidden")
+            elem("poss"+(i+1)).innerHTML = possibilitiesForGuesses(guesses.slice(0,i+1), word, ALLWORDS).length + " possibilities left"
+          }
+
+
           for (var guessPosition = 1; guessPosition < guesses.length+1; guessPosition++) {
             var green = []
             var yellow = []
-            if (guessPosition >= 6) {
+            if (guessPosition <= 6) {
               var guessWord = guesses[guessPosition-1]
+              console.log(guessWord)
 
               for (var i = 1; i <= 5; i++) {
                 var guess = guessWord[i-1]
+                console.log(guess)
+                elem(String(guessPosition)+String(i)).children[0].children[0].innerHTML = guess
                 if (guess == word[i-1]) {
                   appendClass(String(guessPosition)+String(i), "box-green")
                   green.push(guess)
@@ -297,10 +325,12 @@
         4:chars
       }
       var countOfChars = {}
+      //console.log("here1")
 
       for (var guessI = 0; guessI < guessArr.length; guessI++) {
         var guess = guessArr[guessI]
         var countOfCharsThisGuess = {}
+        //console.log("here2"+guess)
 
         for (var i = 0; i < guess.length; i++) {
           if (guess[i] == word[i]) { //green letter
@@ -317,6 +347,7 @@
 
           else {possibilities = removeCharFromAllPossibilities(possibilities, guess[i])}
         }
+        //console.log("here3")
 
         var charsCounted = Object.keys(countOfCharsThisGuess).concat(Object.keys(countOfChars))
         for (var i = 0; i < charsCounted.length; i++) { //make max of yellow counts to know letter repeats
@@ -328,6 +359,7 @@
 
           countOfChars[charsCounted[i]] = Math.min(Math.max(thisGuessCount,totalCount), countOfCharsInWord(word, charsCounted[i]))
         }
+        //console.log("here4")
 
       }
 
@@ -353,6 +385,7 @@
 
         if (containsEnoughYellows && fitsPossibleLetters) {possibleWords.push(word)}
       }
+      //.log("here5")
 
       return possibleWords
     }
@@ -380,26 +413,34 @@
       return result
     }
 
-    function chooseOptimalGuesses(startWord, word, allWords, guessWords) {
-      var guesses = [startWord]
-      var possibleWords = possibilitiesForGuesses(guesses,word, allWords)
-      
-      while (possibleWords.length > 1) {
-        var bestNum = possibleWords.length
-        var bestGuess = []
-        for (var i = 0; i < guessWords.length; i++) {
-          console.log(i/guessWords.length*100)
-          elem("progressBarValue").value = String(Math.round(i/guessWords.length*100))
-          var guessesNew = JSON.parse(JSON.stringify(guesses))
+    function iterateOptimalGuesses(startWord, word, allWords, guessWords, i, bestNum, bestGuess, guessesChoosing, possibleWordsChoosing) {
+      if (i >= guessWords.length) {
+        guessesChoosing = JSON.parse(JSON.stringify(bestGuess))
+        bestGuess = []
+        possibleWordsChoosing = possibilitiesForGuesses(guessesChoosing,word,allWords)
+        bestNum = possibleWordsChoosing.length
+        console.log(possibleWordsChoosing)
+        i = -1
+      } else {
+
+
+      console.log(i/guessWords.length*100)
+          if (Math.round(i/10) == i/10) {setTimeout(function() {elem("progressBarValue").value = i/guessWords.length*100},100)}
+          //console.log(guessesChoosing)
+          var guessesNew = JSON.parse(JSON.stringify(guessesChoosing))
+          //console.log(guessesNew)
           guessesNew.push(guessWords[i])
+          //console.log(guessesChoosing)
           //Logger.log(guessesNew)
 
           var numLefts = []
-          for (var j = 0; j < possibleWords.length; j++) {
-            var possibleWordsLeftTry = possibilitiesForGuesses(guessesNew, possibleWords[j], allWords)
+          for (var j = 0; j < possibleWordsChoosing.length; j++) {
+            //console.log(possibleWordsChoosing[j])
+            var possibleWordsLeftTry = possibilitiesForGuesses(guessesNew, possibleWordsChoosing[j], allWords)
+            //console.log("done")
             //var set = new Set(possibleWords)
             //possibleWordsLeftTry.forEach(function(elem){this.add(elem)},set)
-            var truePossibleWordsLeft = elemsInBothArrs(possibleWords, possibleWordsLeftTry)
+            var truePossibleWordsLeft = elemsInBothArrs(possibleWordsChoosing, possibleWordsLeftTry)
             numLefts.push(truePossibleWordsLeft.length)
           }
 
@@ -408,18 +449,24 @@
             bestNum = avgArr(numLefts)
             bestGuess = guessesNew
           }
-          else if (avgArr(numLefts) == bestNum && possibleWords.includes(guessWords[i])) {
+          else if (avgArr(numLefts) == bestNum && possibleWordsChoosing.includes(guessWords[i])) {
             bestNum = avgArr(numLefts)
             bestGuess = guessesNew
           }
 
-        }
-        guesses = bestGuess
-        possibleWords = possibilitiesForGuesses(guesses,word,allWords)
-        console.log(possibleWords)
       }
 
-      return guesses
+      if (possibleWordsChoosing.length > 1) {setTimeout(iterateOptimalGuesses,1,startWord, word, allWords, guessWords, i+1, bestNum, bestGuess, guessesChoosing, possibleWordsChoosing)}
+      else {guesses = guessesChoosing; setGrid()}
+    }
+
+    function chooseOptimalGuesses(startWord, word, allWords, guessWords) {
+      var guessesChoosing = [startWord]
+      var possibleWordsChoosing = possibilitiesForGuesses(guessesChoosing,word, allWords)
+
+      var bestNum = possibleWordsChoosing.length
+      var bestGuess = []
+      iterateOptimalGuesses(startWord, word, allWords, guessWords, 0, bestNum, bestGuess, guessesChoosing, possibleWordsChoosing)
     }
 
     function avgArr(arr) {
