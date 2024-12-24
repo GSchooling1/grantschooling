@@ -317,78 +317,138 @@
       return Math.round(Math.random() * (hi - lo)) + lo
     }
 
+    var colorsForWordCombo = {} //0 is grey, 1 is yellow, 2 is green
+    var possibilitiesForGuessesPast = {}
+
+    function getColorsForWordCombo(guess, word) {
+      if (colorsForWordCombo[guess+"."+word]) {return colorsForWordCombo[guess+"."+word]}
+      //var result = [0,0,0,0,0]
+      var result = {"g":{},"c":{},"n":[]}
+      for (var i = 0; i < guess.length; i++) {
+        if (guess[i] == word[i]) { //green letter
+          result["g"][i] = guess[i]
+        }
+
+        if (word.indexOf(guess[i]) > -1 && !(guess[i] in result["c"])) {
+          if (countOfCharsInWord(word, guess[i]) < countOfCharsInWord(guess, guess[i])) {
+            result["c"][guess[i]] = ["max",countOfCharsInWord(word, guess[i])]
+          } else {
+            result["c"][guess[i]] = ["min",countOfCharsInWord(guess, guess[i])]
+          }
+        }
+
+        if (word.indexOf(guess[i]) < 0 && !(guess[i] in result["n"])) {result["n"].push(guess[i])}
+      }
+      
+      colorsForWordCombo[guess+"."+word] = result
+      return result
+    }
+
+    function combineColorsForGuesses(guessArr, word) {
+      //if (colorsForWordCombo[guessArr.join(",")+"."+word]) {return colorsForWordCombo[guessArr.join(",")+"."+word]}
+      var result = {"g":{},"c":{},"n":[]}
+      for (var i = 0; i < guessArr.length; i++) {
+        var colors = getColorsForWordCombo(guessArr[i], word)
+        //Logger.log(colors["g"])
+        result["g"] = Object.assign(result["g"], colors["g"])
+
+        for (var j = 0; j < guessArr[i].length; j++) {
+          var char = guessArr[i][j]
+          if (colors["c"][char] && colors["c"][char][0] != "max") {
+            if (colors["c"][char][0] == "max") {result["c"][char] = colors["c"][char]}
+            else if (char in result["c"]) {result["c"][char][1] = Math.max(colors["c"][char][1],result["c"][char][1])}
+            else {result["c"][char] = colors["c"][char]}
+          }
+        }
+
+        for (var n = 0; n < colors["n"].length; n++) {
+          if (!result["n"].includes(colors["n"][n])) {result["n"].push(colors["n"][n])}
+        }
+      }
+      return result
+    }
+
     function possibilitiesForGuesses(guessArr, word, allWords) {
-      var possibilities = {
-        0:chars,
-        1:chars,
-        2:chars,
-        3:chars,
-        4:chars
-      }
-      var countOfChars = {}
-      //console.log("here1")
-
-      for (var guessI = 0; guessI < guessArr.length; guessI++) {
-        var guess = guessArr[guessI]
-        var countOfCharsThisGuess = {}
-        //console.log("here2"+guess)
-
-        for (var i = 0; i < guess.length; i++) {
-          if (guess[i] == word[i]) { //green letter
-            possibilities[i] = [guess[i]]
-            if (countOfCharsThisGuess[guess[i]]) {countOfCharsThisGuess[guess[i]]++} //count of this char as green
-            else {countOfCharsThisGuess[guess[i]] = 1}
-          }
-
-          else if (word.indexOf(guess[i]) > -1) { //yellow letter
-            possibilities[i] = removeFromArr(possibilities[i],guess[i]) //not possible this letter
-            if (countOfCharsThisGuess[guess[i]]) {countOfCharsThisGuess[guess[i]]++} //count of this char as yellow
-            else {countOfCharsThisGuess[guess[i]] = 1}
-          }
-
-          else {possibilities = removeCharFromAllPossibilities(possibilities, guess[i])}
-        }
-        //console.log("here3")
-
-        var charsCounted = Object.keys(countOfCharsThisGuess).concat(Object.keys(countOfChars))
-        for (var i = 0; i < charsCounted.length; i++) { //make max of yellow counts to know letter repeats
-          if (countOfCharsThisGuess[charsCounted[i]]) {var thisGuessCount = countOfCharsThisGuess[charsCounted[i]]}
-          else {var thisGuessCount = 0}
-
-          if (countOfChars[charsCounted[i]]) {var totalCount = countOfChars[charsCounted[i]]}
-          else {var totalCount = 0}
-
-          countOfChars[charsCounted[i]] = Math.min(Math.max(thisGuessCount,totalCount), countOfCharsInWord(word, charsCounted[i]))
-        }
-        //console.log("here4")
-
-      }
-
-      //Logger.log(possibilities)
-      //Logger.log(countOfChars)
-
-      var possibleWords = []
+      //Logger.log(guessArr)
+      var colors = combineColorsForGuesses(guessArr, word)
+      //Logger.log(colors)
+      var strColors = stringifyColorObject(colors)
+      //Logger.log(possibilitiesForGuessesPast)
+      //Logger.log(strColors)
+      //Logger.log(colors)
+      //Logger.log(allWords.length)
+      if (possibilitiesForGuessesPast[strColors]) {return possibilitiesForGuessesPast[strColors]}
+      var greenKeys = Object.keys(colors["g"])
+      var charKeys = Object.keys(colors["c"])
+      var result = []
       for (var i = 0; i < allWords.length; i++) {
-        var word = allWords[i]
+        //greens
+        //Logger.log(hasGreensInCorrectPlaces(allWords[i], colors["g"], greenKeys))
+        if (!hasGreensInCorrectPlaces(allWords[i], colors["g"], greenKeys)) {continue}
 
-        var charsCounted = Object.keys(countOfChars)
-        var containsEnoughYellows = true
-        for (var j = 0; j < charsCounted.length; j++) {
-          if (countOfCharsInWord(word, charsCounted[j]) < countOfChars[charsCounted[j]]) {containsEnoughYellows = false}
-          //if (word == "MIGHT") {Logger.log(countOfCharsInWord(charsCounted[j],word))}
-        }
-        
-        var fitsPossibleLetters = true
-        for (var j = 0; j < 5; j++) {
-          if (!possibilities[j].includes(word[j])) {fitsPossibleLetters = false}
-        }
-        //if (word == "MIGHT") {Logger.log(fitsPossibleLetters)}
+        //yellows
+        //Logger.log(hasCharCountsCorrectly(allWords[i], colors["c"], charKeys))
+        if (!hasCharCountsCorrectly(allWords[i], colors["c"], charKeys)) {continue}
 
-        if (containsEnoughYellows && fitsPossibleLetters) {possibleWords.push(word)}
+        //greys
+        //Logger.log(doesNotContainProhibitedLetters(allWords[i], colors["n"]))
+        if (!doesNotContainProhibitedLetters(allWords[i], colors["n"])) {continue}
+
+        result.push(allWords[i])
       }
-      //.log("here5")
 
-      return possibleWords
+      possibilitiesForGuessesPast[stringifyColorObject(colors)] = result
+      //Logger.log(result)
+      return result
+    }
+
+    function hasGreensInCorrectPlaces(word, greens, greenKeys) {
+      //Logger.log(greens)
+      for (var i = 0; i < greenKeys.length; i++) {
+        if (word[greenKeys[i]] != greens[greenKeys[i]]) {return false}
+      }
+      return true
+    }
+
+    function hasCharCountsCorrectly(word, chars, charKeys) {
+      for (var i = 0; i < charKeys.length; i++) {
+        if (chars[charKeys[i]][0] == "max") {
+          if (countOfCharsInWord(word, charKeys[i]) > chars[charKeys[i][1]]) {return false}
+        } else {
+          if (countOfCharsInWord(word, charKeys[i]) < chars[charKeys[i][1]]) {return false}
+        }
+      }
+      return true
+    }
+
+    function doesNotContainProhibitedLetters(word, letters) {
+      for (var i = 0; i < letters.length; i++) {
+        if (word.indexOf(letters[i]) > -1) {return false}
+      }
+      return true
+    }
+
+    function stringifyObject(obj) {
+      const sortedEntries = Object.entries(obj)
+        .sort((a, b) => a[0].localeCompare(b[0]));  // Sort by the keys
+
+      // Reconstruct the object from the sorted entries (optional)
+      const sortedObject = Object.fromEntries(sortedEntries);
+
+      // Convert the sorted object back into a string (JSON format)
+      const jsonString = JSON.stringify(sortedObject);
+
+      return jsonString
+    }
+
+    function stringifyColorObject(obj) {
+      var newObj = {}
+      //Logger.log(obj)
+      newObj["c"] = stringifyObject(obj["c"])
+      newObj["g"] = stringifyObject(obj["g"])
+      newObj["n"] = obj["n"].sort()
+      //Logger.log(obj)
+      return stringifyObject(obj)
     }
 
     function removeCharFromAllPossibilities(possibilities, char) {
@@ -457,7 +517,7 @@
 
       }
 
-      if (possibleWordsChoosing.length > 1) {setTimeout(iterateOptimalGuesses,1,startWord, word, allWords, guessWords, i+1, bestNum, bestGuess, guessesChoosing, possibleWordsChoosing)}
+      if (possibleWordsChoosing.length > 1) {setTimeout(iterateOptimalGuesses,0,startWord, word, allWords, guessWords, i+1, bestNum, bestGuess, guessesChoosing, possibleWordsChoosing)}
       else {guesses = guessesChoosing; setGrid()}
     }
 
