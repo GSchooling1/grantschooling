@@ -212,7 +212,7 @@
               if (guesses[guesses.length-1] != word) {guesses.push(word)}
               for (i = 0; i < guesses.length; i++) {
                 removeClass("text"+(i+1), "uk-hidden")
-                elem("poss"+(i+1)).innerHTML = possibilitiesForGuesses(guesses.slice(0,i+1), word, ALLWORDS).length + " possibilities left"
+                elem("poss"+(i+1)).innerHTML = possibilitiesForGuessesOLD(guesses.slice(0,i+1), word, ALLWORDS).length + " possibilities left"
               }
               setGrid()
             }
@@ -244,7 +244,7 @@
           if (guesses[guesses.length-1] != word) {guesses.push(word)}
           for (i = 0; i < guesses.length; i++) {
             removeClass("text"+(i+1), "uk-hidden")
-            var possibilities = possibilitiesForGuesses(guesses.slice(0,i+1), word, ALLWORDS)
+            var possibilities = possibilitiesForGuessesOLD(guesses.slice(0,i+1), word, ALLWORDS)
             elem("possNum"+(i+1)).innerHTML = possibilities.length + " possibilities left"
             elem("poss"+(i+1)).innerHTML = possibilities.join(", ")
           }
