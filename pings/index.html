@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.3/dist/css/uikit.min.css" />
+
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.23.3/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.23.3/dist/js/uikit-icons.min.js"></script>
+
+<style>
+  .image {
+    width:100%
+  }
+  button {
+    width:250px;
+    font-size:50px;
+    height:75px;
+  }
+</style>
+  </head>
+  <body onload="getPingData();loadPings();getUserData();onScrollToBottom()">
+    <span uk-spinner="ratio: 4.5" class="uk-position-center" id="spinner"></span>
+    <div id="body" hidden>
+      <h2 class="uk-text-center" id="title"></h2>
+      <br>
+     
+    </div>
+  </body>
+  <script>
+
+    var pingData = null
+    var userData = null
+    const mainUrl = "https://script.google.com/macros/s/AKfycbxYcH67F2x2S1fDWKGtSeEzIvmtVeUN1Mps-82hUO61J9ebloHxl0oLIfbnsxbyQTox/exec" + "?webVersion=true"
+    var pingsShown = []
+    const enoughShownToReportAllShown = 14
+
+    async function getPingData() {
+      const url = mainUrl + "&getPingData=true"
+      try {
+        // Fetch the data from the URL
+        const response = await fetch(url);
+        
+        // Check if the response is OK (status 200)
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        // Parse the response as JSON (assuming the response is JSON)
+        const data = await response.json();
+        
+        // Save the data to the global variable
+        pingData = data;
+
+        console.log('Data fetched successfully:', pingData);
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    }
+
+    async function getUserData() {
+      const userID = getParameterByName("user")
+      const url = mainUrl + "&getUserData="+getParameterByName("user")
+      try {
+        // Fetch the data from the URL
+        const response = await fetch(url);
+        
+        // Check if the response is OK (status 200)
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        // Parse the response as JSON (assuming the response is JSON)
+        const data = await response.json();
+        
+        // Save the data to the global variable
+        userData = data;
+        document.getElementById("title").innerHTML = "Hello, "+userData["userName"]
+
+        console.log('Data fetched successfully:', userData);
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    }
+
+    function loadPings() {
+      if (pingData && userData) {
+        document.getElementById("spinner").setAttribute("hidden",true)
+        document.getElementById("body").removeAttribute("hidden")
+        for (var i = 0; i < 10; i++) {
+          loadNewPing()
+        }
+      } else {
+        setTimeout(loadPings,1000)
+      }
+    }
+
+    function loadNewPing() {
+      var index = Math.round(Math.random() * pingData.length)
+      var tries = 0
+      while (
+        (
+          pingData[index][userData["colI"]] == "" || //is not available to user
+          pingData[index][4] > Math.min(pingData.map(row => row[4])) || //is not least seen by user
+          pingData[index][0].indexOf(".mp4") > -1 //not a video
+        ) && tries < 1000
+      ) {
+        index = Math.round(Math.random() * pingData.length)
+        tries++
+      }
+      const pingUrl = "https://github.com/GSchooling1/pings/blob/main/" + pingData[index][1] + "/" + pingData[index][0] + "?raw=true"
+
+      var card = document.createElement("div")
+      card.className = "uk-card uk-card-default uk-card-small uk-card-body"
+      document.getElementById("body").appendChild(card)
+
+      var img = document.createElement("img")
+      img.setAttribute("src",pingUrl)
+      img.className = "image"
+      card.appendChild(img)
+
+      var footer = document.createElement("div")
+      footer.className = "uk-card-footer uk-text-center"
+      card.appendChild(footer)
+
+      var button1 = document.createElement("button")
+      button1.className = "uk-button uk-button-primary uk-text-large"
+      button1.innerHTML = userData["friend1Name"]
+      var buttonID = String(Math.random())
+      button1.setAttribute("id",buttonID)
+      button1.setAttribute("onclick","shareWith('"+pingData[index][0]+"','"+pingData[index][1]+"','"+userData["friend1ID"]+"','"+buttonID+"')")
+      footer.appendChild(button1)
+
+      var button2 = document.createElement("button")
+      button2.className = "uk-button uk-button-secondary uk-text-large"
+      button2.innerHTML = userData["friend2Name"]
+      var buttonID = String(Math.random())
+      button2.setAttribute("id",buttonID)
+      button2.setAttribute("onclick","shareWith('"+pingData[index][0]+"','"+pingData[index][1]+"','"+userData["friend2ID"]+"','"+buttonID+"')")
+      footer.appendChild(button2)
+
+      var button3 = document.createElement("button")
+      button3.className = "uk-button uk-button-danger uk-text-large"
+      button3.innerHTML = "Remove"
+      var buttonID = String(Math.random())
+      button3.setAttribute("id",buttonID)
+      button3.setAttribute("onclick","remove('"+pingData[index][0]+"','"+pingData[index][1]+"','"+buttonID+"')")
+      footer.appendChild(button3)
+
+
+      pingsShown.push([pingData[index][0], pingData[index][1]])
+      if (pingsShown.length > enoughShownToReportAllShown) {
+        fetch(mainUrl + "&markShown="+JSON.stringify(pingsShown)) //note ping was shown
+        pingsShown = []
+      }
+      pingData[index][4] = pingData[index][4] + 1
+    }
+
+    function removeTopPing() {
+      var children = document.getElementById("body").children
+      if (children.length > 40) {
+        children[2].remove()
+      }
+    }
+
+    function shareWith(name,folder,friendID, buttonID) {
+      document.getElementById(buttonID).innerHTML = "Shared!"
+      const url = mainUrl + "&shareWith="+friendID + "&userID="+userData["userID"] + "&name="+name + "&dir="+folder
+      fetch(url)
+    }
+
+    function remove(name, folder, buttonID) {
+      document.getElementById(buttonID).innerHTML = "Done!"
+      fetch(mainUrl + "&remove="+name)
+    }
+
+    function getParameterByName(name, url = window.location.href) {
+        const regex = new RegExp('[?&]' + name + '=([^&]*)', 'i');
+        const result = regex.exec(url);
+        return result ? decodeURIComponent(result[1]) : null;
+    }
+
+    function scrolledToBottom() {
+      for (var i = 0; i < 5; i++) {loadNewPing();removeTopPing()}
+    }
+
+    function onScrollToBottom() {
+        window.addEventListener('scroll', function() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2000) {
+                scrolledToBottom();  // Run the callback function when bottom is reached
+            }
+        });
+    }
+
+
+  </script>
+</html>
